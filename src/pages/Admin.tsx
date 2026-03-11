@@ -494,10 +494,11 @@ const Admin = () => {
               </button>
               <h1 className="text-2xl font-display font-bold text-primary-foreground">Admin Dashboard</h1>
             </div>
-            {notificationCounts.orders + notificationCounts.messages + notificationCounts.users > 0 &&
+            {/* include newsletter in the global notification summary as well */}
+            {notificationCounts.orders + notificationCounts.messages + notificationCounts.users + notificationCounts.newsletter > 0 &&
             <div className="flex items-center gap-2 bg-gold/20 border border-gold/30 rounded-full px-4 py-1.5">
                 <Bell className="w-4 h-4 text-gold" />
-                <span className="text-gold text-sm font-medium">{notificationCounts.orders + notificationCounts.messages + notificationCounts.users} new notifications</span>
+                <span className="text-gold text-sm font-medium">{notificationCounts.orders + notificationCounts.messages + notificationCounts.users + notificationCounts.newsletter} new notifications</span>
               </div>
             }
           </div>
@@ -1187,11 +1188,16 @@ const Admin = () => {
 
 /* ─── Newsletter Tab ─── */
 const NewsletterTab = () => {
+  const { markNewsletterAsRead } = useAdminNotifications();
   const [subscribers, setSubscribers] = useState<{id: string;email: string;created_at: string;}[]>([]);
   const [loading, setLoading] = useState(true);
   const [confirmModal, setConfirmModal] = useState<{open: boolean;id: string;email: string;} | null>(null);
 
-  useEffect(() => {fetchSubscribers();}, []);
+  // mark anything unread as read whenever the newsletter tab mounts
+  useEffect(() => {
+    markNewsletterAsRead();
+    fetchSubscribers();
+  }, [markNewsletterAsRead]);
 
   const fetchSubscribers = async () => {
     setLoading(true);

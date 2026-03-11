@@ -109,7 +109,8 @@ After (Vertical Sidebar):
 - Main content area uses `lg:ml-64` to adjust for sidebar
 - Mobile menu toggle button in header
 - Smooth sidebar animations with Framer Motion
-- Notification counts integrated into sidebar badges
+- Notification counts integrated into sidebar badges (orders/messages/users/newsletter)
+- Top‑bar summary now includes newsletter notifications as well
 
 ### 5. **Dynamic Product Categories**
 **File:** `src/pages/Admin.tsx` (Product Form)

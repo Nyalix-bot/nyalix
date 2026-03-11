@@ -135,7 +135,14 @@ export const useAdminNotifications = () => {
 
       if (error) throw error;
 
-      setCounts((prev) => ({ ...prev, orders: 0 }));
+      // Refetch to ensure state is synced with database
+      await new Promise(resolve => setTimeout(resolve, 100));
+      const { count: unreadCount } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('read', false);
+
+      setCounts((prev) => ({ ...prev, orders: unreadCount || 0 }));
     } catch (error) {
       console.error('Error marking orders as read:', error);
     }
@@ -151,7 +158,14 @@ export const useAdminNotifications = () => {
 
       if (error) throw error;
 
-      setCounts((prev) => ({ ...prev, messages: 0 }));
+      // Refetch to ensure state is synced with database
+      await new Promise(resolve => setTimeout(resolve, 100));
+      const { count: unreadCount } = await supabase
+        .from('contact_messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('read', false);
+
+      setCounts((prev) => ({ ...prev, messages: unreadCount || 0 }));
     } catch (error) {
       console.error('Error marking messages as read:', error);
     }
@@ -167,7 +181,14 @@ export const useAdminNotifications = () => {
 
       if (error) throw error;
 
-      setCounts((prev) => ({ ...prev, newsletter: 0 }));
+      // Refetch to ensure state is synced with database
+      await new Promise(resolve => setTimeout(resolve, 100));
+      const { count: unreadCount } = await supabase
+        .from('newsletter_subscribers')
+        .select('*', { count: 'exact', head: true })
+        .eq('read', false);
+
+      setCounts((prev) => ({ ...prev, newsletter: unreadCount || 0 }));
     } catch (error) {
       console.error('Error marking newsletter as read:', error);
     }
@@ -183,7 +204,14 @@ export const useAdminNotifications = () => {
 
       if (error) throw error;
 
-      setCounts((prev) => ({ ...prev, users: 0 }));
+      // Refetch to ensure state is synced with database
+      await new Promise(resolve => setTimeout(resolve, 100));
+      const { count: unreadCount } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('admin_notified', false);
+
+      setCounts((prev) => ({ ...prev, users: unreadCount || 0 }));
     } catch (error) {
       console.error('Error marking users as notified:', error);
     }
@@ -194,6 +222,12 @@ export const useAdminNotifications = () => {
     console.log('useAdminNotifications: Setting up subscriptions');
     // Fetch counts initially
     fetchCounts();
+
+    // Refetch counts periodically to catch any sync issues
+    const interval = setInterval(() => {
+      console.log('useAdminNotifications: Periodic refetch of counts');
+      fetchCounts();
+    }, 30000); // Refetch every 30 seconds as safety net
 
     // Subscribe to new orders
     const ordersChannel = supabase
@@ -342,6 +376,7 @@ export const useAdminNotifications = () => {
       .subscribe();
 
     return () => {
+      clearInterval(interval);
       supabase.removeChannel(ordersChannel);
       supabase.removeChannel(messagesChannel);
       supabase.removeChannel(newsletterChannel);
