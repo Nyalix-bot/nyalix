@@ -16,7 +16,11 @@ type Order = {
   status: string;
   total: number;
   shipping_name: string;
+  shipping_email?: string;
+  shipping_phone?: string;
   shipping_country: string;
+  shipping_city?: string;
+  shipping_address?: string;
   created_at: string;
   user_id: string;
   order_items?: { product_name: string; quantity: number; price: number }[];

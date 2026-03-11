@@ -22,8 +22,11 @@ interface Order {
   total: number;
   created_at: string;
   shipping_name: string;
+  shipping_email?: string;
+  shipping_phone?: string;
   shipping_city: string;
   shipping_country: string;
+  shipping_address?: string;
   order_items?: OrderItem[];
 }
 
@@ -365,7 +368,10 @@ const Profile = () => {
                           <div>
                             <p className="text-xs text-muted-foreground mb-1">Shipping To</p>
                             <p className="text-sm text-foreground">{order.shipping_name}</p>
+                            {order.shipping_email && <p className="text-sm text-muted-foreground">{order.shipping_email}</p>}
                             <p className="text-sm text-muted-foreground">{order.shipping_city}, {order.shipping_country}</p>
+                            {order.shipping_phone && <p className="text-sm text-muted-foreground">Phone: {order.shipping_phone}</p>}
+                            {order.shipping_address && <p className="text-sm text-muted-foreground">{order.shipping_address}</p>}
                           </div>
                           {/* Status Timeline */}
                           <div>

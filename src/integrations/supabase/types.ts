@@ -7,13 +7,69 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.1"
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          created_at: string
+          description: string
+          description_ar: string
+          icon: string | null
+          id: string
+          name: string
+          name_ar: string
+          order_index: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          description_ar?: string
+          icon?: string | null
+          id?: string
+          name: string
+          name_ar?: string
+          order_index?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          description_ar?: string
+          icon?: string | null
+          id?: string
+          name?: string
+          name_ar?: string
+          order_index?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       certificates: {
         Row: {
           created_at: string
@@ -138,18 +194,71 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          read: boolean
         }
         Insert: {
           created_at?: string
           email: string
           id?: string
+          read?: boolean
         }
         Update: {
           created_at?: string
           email?: string
           id?: string
+          read?: boolean
         }
         Relationships: []
+      }
+      notifications: {
+        Row: {
+          error_message: string | null
+          event: string
+          id: string
+          message: string
+          order_id: string | null
+          recipient: string
+          sent_at: string
+          status: string
+          subject: string | null
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          error_message?: string | null
+          event: string
+          id?: string
+          message: string
+          order_id?: string | null
+          recipient: string
+          sent_at?: string
+          status?: string
+          subject?: string | null
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          error_message?: string | null
+          event?: string
+          id?: string
+          message?: string
+          order_id?: string | null
+          recipient?: string
+          sent_at?: string
+          status?: string
+          subject?: string | null
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       order_items: {
         Row: {
@@ -200,9 +309,11 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          read: boolean
           shipping_address: string
           shipping_city: string
           shipping_country: string
+          shipping_email: string
           shipping_name: string
           shipping_phone: string
           status: string
@@ -213,9 +324,11 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          read?: boolean
           shipping_address?: string
           shipping_city?: string
           shipping_country?: string
+          shipping_email?: string
           shipping_name?: string
           shipping_phone?: string
           status?: string
@@ -226,9 +339,11 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          read?: boolean
           shipping_address?: string
           shipping_city?: string
           shipping_country?: string
+          shipping_email?: string
           shipping_name?: string
           shipping_phone?: string
           status?: string
@@ -268,10 +383,37 @@ export type Database = {
         }
         Relationships: []
       }
+      product_views: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_views_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category: string
           category_ar: string
+          category_id: string | null
           created_at: string
           description: string
           description_ar: string
@@ -289,6 +431,7 @@ export type Database = {
         Insert: {
           category?: string
           category_ar?: string
+          category_id?: string | null
           created_at?: string
           description?: string
           description_ar?: string
@@ -306,6 +449,7 @@ export type Database = {
         Update: {
           category?: string
           category_ar?: string
+          category_id?: string | null
           created_at?: string
           description?: string
           description_ar?: string
@@ -320,35 +464,19 @@ export type Database = {
           stock_quantity?: number
           updated_at?: string
         }
-        Relationships: []
-      }
-      product_views: {
-        Row: {
-          id: string
-          product_id: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          product_id: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          product_id?: string
-          created_at?: string
-        }
         Relationships: [
           {
-            foreignKeyName: "product_views_product_id_fkey"
-            columns: ["product_id"]
-            referencedRelation: "products"
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
             referencedColumns: ["id"]
-          }
+          },
         ]
       }
       profiles: {
         Row: {
+          admin_notified: boolean
           avatar_url: string | null
           country: string | null
           created_at: string
@@ -360,6 +488,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          admin_notified?: boolean
           avatar_url?: string | null
           country?: string | null
           created_at?: string
@@ -371,6 +500,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          admin_notified?: boolean
           avatar_url?: string | null
           country?: string | null
           created_at?: string
@@ -412,6 +542,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      send_notification: {
+        Args: { event_type: string; order_id?: string; user_id: string }
+        Returns: undefined
       }
     }
     Enums: {
@@ -541,9 +675,13 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
     },
   },
 } as const
+

@@ -50,8 +50,18 @@ interface Product {
 }
 
 interface Order {
-  id: string;status: string;total: number;shipping_name: string;shipping_country: string;
-  created_at: string;user_id: string;read: boolean;
+  id: string;
+  status: string;
+  total: number;
+  shipping_name: string;
+  shipping_email?: string;
+  shipping_phone?: string;
+  shipping_country: string;
+  shipping_city?: string;
+  shipping_address?: string;
+  created_at: string;
+  user_id: string;
+  read: boolean;
   order_items?: {product_name: string;quantity: number;price: number;product_image_url?: string;}[];
 }
 
@@ -111,6 +121,7 @@ const Admin = () => {
     }
   }, [categories]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [expandedOrders, setExpandedOrders] = useState<Set<string>>(new Set());
   const [messages, setMessages] = useState<ContactMsg[]>([]);
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [editProduct, setEditProduct] = useState<Partial<Product> | null>(null);
@@ -1042,7 +1053,30 @@ const Admin = () => {
                   <button onClick={() => deleteOrder(o.id)} className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors" title="Delete order">
                     <Trash2 className="w-4 h-4" />
                   </button>
+                  <button
+                    onClick={() => {
+                      setExpandedOrders((prev) => {
+                        const next = new Set(prev);
+                        if (next.has(o.id)) next.delete(o.id);
+                        else next.add(o.id);
+                        return next;
+                      });
+                    }}
+                    className="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                    title="Toggle customer details"
+                  >
+                    {expandedOrders.has(o.id) ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
+                {expandedOrders.has(o.id) && (
+                  <div className="border-t border-border pt-3 text-sm space-y-1">
+                    <p><strong>Email:</strong> {o.shipping_email || '—'}</p>
+                    <p><strong>Phone:</strong> {o.shipping_phone || '—'}</p>
+                    <p><strong>Country:</strong> {o.shipping_country || '—'}</p>
+                    <p><strong>City:</strong> {o.shipping_city || '—'}</p>
+                    <p><strong>Address:</strong> {o.shipping_address || '—'}</p>
+                  </div>
+                )}
                 {o.order_items && o.order_items.length > 0 &&
             <div className="border-t border-border pt-3 space-y-2">
                     {o.order_items.map((item, i) =>

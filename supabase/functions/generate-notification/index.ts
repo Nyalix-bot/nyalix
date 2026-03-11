@@ -282,7 +282,7 @@ function generateInvoiceEmail(profile: ProfileRecord, order: OrderRecord): strin
         <p>${order.shipping_name}<br>
         ${order.shipping_address}<br>
         ${order.shipping_city}, ${order.shipping_country}<br>
-        Phone: ${order.shipping_phone}</p>
+        Phone: ${order.shipping_phone}${order.shipping_email ? `<br/>Email: ${order.shipping_email}` : ''}</p>
         
         <h3>Order Items:</h3>
         <table class="invoice-table">
@@ -361,7 +361,7 @@ function generateInvoiceWhatsApp(profile: ProfileRecord, order: OrderRecord): st
     `${item.product_name} x${item.quantity} - $${(item.quantity * item.price).toFixed(2)}`
   ).join('\n') ?? ''
 
-  return `🛍️ *Order Confirmation*\n\nOrder ID: ${order.id}\n\nItems:\n${itemsText}\n\nTotal: $${order.total.toFixed(2)}\n\nShipping to: ${order.shipping_name}, ${order.shipping_address}, ${order.shipping_city}\n\nThank you for shopping with Nyalix Global Care!`
+  return `🛍️ *Order Confirmation*\n\nOrder ID: ${order.id}\n\nItems:\n${itemsText}\n\nTotal: $${order.total.toFixed(2)}\n\nShipping to: ${order.shipping_name}, ${order.shipping_address}, ${order.shipping_city}${order.shipping_email ? `, email: ${order.shipping_email}` : ''}${order.shipping_phone ? `, phone: ${order.shipping_phone}` : ''}\n\nThank you for shopping with Nyalix Global Care!`
 }
 
 function generateStatusUpdateWhatsApp(profile: ProfileRecord, order: OrderRecord): string {

@@ -35,15 +35,33 @@ const Cart = () => {
     setPlacing(true);
     const formData = new FormData(e.target as HTMLFormElement);
 
-    const { data: order, error } = await supabase.from('orders').insert({
+    const basePayload: Record<string, any> = {
       user_id: user.id,
       total: totalPrice,
       shipping_name: formData.get('fullName') as string,
       shipping_address: formData.get('address') as string,
       shipping_city: formData.get('city') as string,
       shipping_country: formData.get('country') as string,
-      shipping_phone: formData.get('phone') as string
-    }).select('id').single();
+      shipping_phone: formData.get('phone') as string,
+      shipping_email: formData.get('email') as string
+    };
+
+    // attempt to insert; if column is missing in schema we retry without it
+    let order;
+    let error;
+    ({ data: order, error } = await supabase.from('orders').insert(basePayload).select('id').single());
+
+    if (error && /shipping_email/.test(error.message)) {
+      // probably schema doesn't include that column yet
+      const payload = { ...basePayload };
+      delete payload.shipping_email;
+      const res = await supabase.from('orders').insert(payload).select('id').single();
+      order = res.data;
+      error = res.error;
+      if (!error) {
+        toast.warning('Shipping email not saved because database schema is outdated. Please run migrations.');
+      }
+    }
 
     if (error || !order) {
       toast.error(error?.message || 'Failed to place order');
