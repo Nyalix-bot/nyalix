@@ -6,13 +6,15 @@ import { useTranslation } from 'react-i18next';
 
 import { useProductSearch, DBProduct } from '@/hooks/useProducts';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const LiveSearch = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { language } = useLanguage();
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 200);
-  const { data: results = [], isFetching } = useProductSearch(debouncedQuery);
+  const { data: results = [], isFetching } = useProductSearch(debouncedQuery, language);
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -67,28 +69,31 @@ const LiveSearch = () => {
             {isFetching ? (
               <li className="px-4 py-2 text-sm text-muted-foreground">Loading...</li>
             ) : results.length > 0 ? (
-              results.map((p) => (
-                <li
-                  key={p.id}
-                  onClick={() => handleSelect(p)}
-                  className="flex items-center gap-2 px-3 py-2 hover:bg-muted cursor-pointer"
-                >
-                  <img
-                    src={p.images?.[0] ?? ''}
-                    alt={p.name}
-                    className="w-8 h-8 object-cover rounded"
-                  />
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">{p.name}</span>
-                    <span className="text-xs text-muted-foreground">
-                      ${p.price.toFixed(2)}
-                    </span>
-                  </div>
-                </li>
-              ))
+              results.map((p) => {
+                const displayName = language === 'ar' ? p.name_ar || p.name : p.name;
+                return (
+                  <li
+                    key={p.id}
+                    onClick={() => handleSelect(p)}
+                    className="flex items-center gap-2 px-3 py-2 hover:bg-muted cursor-pointer"
+                  >
+                    <img
+                      src={p.images?.[0] ?? ''}
+                      alt={displayName}
+                      className="w-8 h-8 object-cover rounded"
+                    />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">{displayName}</span>
+                      <span className="text-xs text-muted-foreground">
+                        ${p.price.toFixed(2)}
+                      </span>
+                    </div>
+                  </li>
+                );
+              })
             ) : (
               <li className="px-4 py-2 text-sm text-muted-foreground">
-                {t('products.noResults', 'No products found')}
+                {t('products.noResults')}
               </li>
             )}
           </motion.ul>

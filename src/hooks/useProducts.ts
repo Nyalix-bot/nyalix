@@ -48,15 +48,21 @@ export const useProduct = (id: string) => {
 // enable the query only when there's actually text to search for, keeping the
 // cache keyed by the query string itself.
 // -----------------------------------------------------------------------------
-export const useProductSearch = (query?: string) => {
+export const useProductSearch = (query?: string, language: 'en' | 'ar' = 'en') => {
   return useQuery({
-    queryKey: ['productSearch', query],
+    queryKey: ['productSearch', query, language],
     queryFn: async () => {
       if (!query) return [] as DBProduct[];
+
+      // choose fields based on language
+      const nameField = language === 'ar' ? 'name_ar' : 'name';
+      const descField = language === 'ar' ? 'description_ar' : 'description';
+
+      // search either name or description in the selected language
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .or(`name.ilike.%${query}%,name_ar.ilike.%${query}%`);
+        .or(`${nameField}.ilike.%${query}%,${descField}.ilike.%${query}%`);
       if (error) throw error;
       return (data ?? []) as unknown as DBProduct[];
     },

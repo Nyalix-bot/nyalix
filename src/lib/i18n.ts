@@ -311,6 +311,7 @@ const resources = {
         title: "منتجاتنا",
         subtitle: "تصفح كتالوجنا الشامل من المعدات الطبية",
         search: "ابحث عن المنتجات...",
+        noResults: "لا توجد منتجات",
         allCategories: "جميع الفئات",
         addToCart: "أضف إلى السلة",
         inStock: "متوفر",
