@@ -23,7 +23,7 @@ export const useCategories = () => {
     queryKey: ['categories'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('categories' as any)
+        .from('categories')
         .select('*')
         .order('order_index', { ascending: true });
 
@@ -66,7 +66,7 @@ export const useCategoriesRealtime = () => {
     const fetchCategories = async () => {
       try {
         const { data, error: fetchError } = await supabase
-          .from('categories' as any)
+          .from('categories')
           .select('*')
           .order('order_index', { ascending: true });
 

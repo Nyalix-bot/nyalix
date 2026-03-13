@@ -1,11 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
+interface Category {
+  id: string;
+  name: string;
+  name_ar: string;
+  created_at: string;
+}
+
 export const AdminDebugger: React.FC = () => {
   const [debugInfo, setDebugInfo] = useState<{
     categoriesTableExists: boolean;
     categoriesCount: number;
-    categoriesData: any[];
+    categoriesData: Category[];
     currentUser: string | null;
     error: string | null;
   } | null>(null);
@@ -18,7 +25,7 @@ export const AdminDebugger: React.FC = () => {
         
         // Try to fetch categories
         const { data: categories, error } = await supabase
-          .from('categories' as any)
+          .from('categories')
           .select('*');
 
         if (error) {
@@ -70,7 +77,7 @@ export const AdminDebugger: React.FC = () => {
         {debugInfo.categoriesData.length > 0 && (
           <div className="mt-2">
             <div className="font-bold">Categories:</div>
-            {debugInfo.categoriesData.map((cat: any) => (
+            {debugInfo.categoriesData.map((cat: Category) => (
               <div key={cat.id}>{cat.name} ({cat.name_ar})</div>
             ))}
           </div>

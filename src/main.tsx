@@ -40,7 +40,7 @@ import App from "./App.tsx";
 import "./index.css";
 
 class RootErrorBoundary extends Component<{ children: React.ReactNode }, { error: Error | null }> {
-  constructor(props: any) {
+  constructor(props: { children: React.ReactNode }) {
     super(props);
     this.state = { error: null };
   }

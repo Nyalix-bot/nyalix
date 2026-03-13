@@ -66,7 +66,7 @@ vi.mock('@/hooks/useProducts', () => {
 // delay of 0 when calling it in tests. an alternative is to mock it, but the
 // simplest approach is to override the implementation here.
 vi.mock('@/hooks/useDebounce', () => ({
-  useDebounce: <T>(value: T) => value,
+  useDebounce: (value: unknown) => value,
 }));
 
 // language context is mutable so we can flip it in tests

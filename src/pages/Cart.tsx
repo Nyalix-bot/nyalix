@@ -35,7 +35,7 @@ const Cart = () => {
     setPlacing(true);
     const formData = new FormData(e.target as HTMLFormElement);
 
-    const basePayload: Record<string, any> = {
+    const basePayload: Record<string, string | number> = {
       user_id: user.id,
       total: totalPrice,
       shipping_name: formData.get('fullName') as string,

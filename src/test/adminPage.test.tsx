@@ -16,7 +16,7 @@ window.ResizeObserver = class {
 
 // provide a minimal mock of supabase methods used by Admin
 vi.mock('@/integrations/supabase/client', () => {
-  const noopChain: any = () => ({
+  const noopChain = () => ({
     select: () => noopChain(),
     order: () => noopChain(),
     eq: () => Promise.resolve({ data: [], error: null }),
@@ -27,7 +27,7 @@ vi.mock('@/integrations/supabase/client', () => {
 
   // channel object that supports chaining .on().on().subscribe()
   const fakeChannel = () => {
-    const ch: any = {
+    const ch = {
       on: () => ch,
       subscribe: () => ch,
     };
@@ -49,15 +49,14 @@ vi.mock('@/integrations/supabase/client', () => {
 const markNewsletterMock = vi.fn();
 // this factory returns a hook that holds its own counts state so we can observe updates
 vi.mock('@/hooks/useAdminNotifications', () => {
-  const React = require('react');
   return {
-    useAdminNotifications: (): any => {
+    useAdminNotifications: () => {
       const [counts, setCounts] = React.useState({ orders: 0, messages: 0, users: 0, newsletter: 2 });
-      const markOrdersAsRead = () => setCounts((c: any) => ({ ...c, orders: 0 }));
-      const markMessagesAsRead = () => setCounts((c: any) => ({ ...c, messages: 0 }));
-      const markUsersAsNotified = () => setCounts((c: any) => ({ ...c, users: 0 }));
+      const markOrdersAsRead = () => setCounts((c) => ({ ...c, orders: 0 }));
+      const markMessagesAsRead = () => setCounts((c) => ({ ...c, messages: 0 }));
+      const markUsersAsNotified = () => setCounts((c) => ({ ...c, users: 0 }));
       const markNewsletterAsRead = () => {
-        setCounts((c: any) => ({ ...c, newsletter: 0 }));
+        setCounts((c) => ({ ...c, newsletter: 0 }));
         markNewsletterMock();
       };
       const fetchCounts = vi.fn();

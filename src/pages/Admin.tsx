@@ -15,7 +15,7 @@ import { useAdminNotifications } from '@/hooks/useAdminNotifications';
 
 // Simple error boundary to surface runtime errors on admin page
 class AdminErrorBoundary extends React.Component<{ children: React.ReactNode }, { error: Error | null }> {
-  constructor(props: any) {
+  constructor(props: { children: React.ReactNode }) {
     super(props);
     this.state = { error: null };
   }
@@ -282,7 +282,7 @@ const Admin = () => {
     if (editCategory.id) {
       // Edit existing category
       const { error } = await supabase
-        .from('categories' as any)
+        .from('categories')
         .update(payload)
         .eq('id', editCategory.id);
       if (error) {
@@ -305,7 +305,7 @@ const Admin = () => {
     } else {
       // Add new category
       const { data, error } = await supabase
-        .from('categories' as any)
+        .from('categories')
         .insert(payload)
         .select('*')
         .single();
@@ -333,7 +333,7 @@ const Admin = () => {
   const deleteCategory = async (id: string) => {
     if (!confirm('Delete this category? Products using it will be unaffected.')) return;
     const { error } = await supabase
-      .from('categories' as any)
+      .from('categories')
       .delete()
       .eq('id', id);
     if (error) {
