@@ -131,6 +131,8 @@ const Admin = () => {
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [categoriesList, setCategoriesList] = useState<Category[]>([]);
   const [confirmModal, setConfirmModal] = useState<{open: boolean;title: string;message: string;onConfirm: () => void;} | null>(null);
+  const [productSearch, setProductSearch] = useState('');
+  const [categorySearch, setCategorySearch] = useState('');
 
   useEffect(() => {
     if (!loading && !user) {
@@ -632,12 +634,38 @@ const Admin = () => {
         {/* Products */}
         {tab === 'products' &&
         <div>
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <h2 className="text-lg font-display font-semibold text-foreground">Manage Products</h2>
-              <button onClick={() => {setEditProduct({ stock_quantity: 0 });setShowForm(true);}}
-            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90">
-                <Plus className="w-4 h-4" /> Add Product
-              </button>
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search products..."
+                    value={productSearch}
+                    onChange={(e) => setProductSearch(e.target.value)}
+                    className="w-full sm:w-64 px-4 py-2 pl-10 pr-10 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  />
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  {productSearch && (
+                    <button
+                      onClick={() => setProductSearch('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+                <button onClick={() => {setEditProduct({ stock_quantity: 0 });setShowForm(true);}}
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 whitespace-nowrap">
+                  <Plus className="w-4 h-4" /> Add Product
+                </button>
+              </div>
             </div>
 
             {showForm &&
@@ -782,8 +810,32 @@ const Admin = () => {
               </motion.div>
           }
 
-            <div className="grid gap-4">
-              {products.map((p) =>
+            {/* Filter products based on search */}
+            {(() => {
+              const filteredProducts = products.filter((p) => {
+                if (!productSearch.trim()) return true;
+                const searchTerm = productSearch.toLowerCase();
+                return (
+                  p.name.toLowerCase().includes(searchTerm) ||
+                  p.name_ar.toLowerCase().includes(searchTerm) ||
+                  p.description.toLowerCase().includes(searchTerm) ||
+                  p.description_ar.toLowerCase().includes(searchTerm) ||
+                  p.category.toLowerCase().includes(searchTerm) ||
+                  p.category_ar.toLowerCase().includes(searchTerm)
+                );
+              });
+
+              return (
+                <div className="grid gap-4">
+                  {filteredProducts.length === 0 ? (
+                    <div className="text-center py-12 bg-card rounded-xl border border-border">
+                      <Package className="w-12 h-12 text-muted-foreground mx-auto opacity-50 mb-3" />
+                      <p className="text-muted-foreground">
+                        {productSearch.trim() ? 'No products match your search.' : 'No products yet. Create your first one!'}
+                      </p>
+                    </div>
+                  ) : (
+                    filteredProducts.map((p) =>
             <div key={p.id} className="flex items-center gap-4 bg-card rounded-xl border border-border p-4 shadow-luxury">
                   <img src={p.images?.[0] || '/placeholder.svg'} alt={p.name} className="w-16 h-16 rounded-lg object-cover" />
                   <div className="flex-1 min-w-0">
@@ -802,25 +854,54 @@ const Admin = () => {
                     <button onClick={() => deleteProduct(p.id)} className="p-2 text-destructive hover:text-destructive/80"><Trash2 className="w-4 h-4" /></button>
                   </div>
                 </div>
-            )}
-            </div>
+            )
+                  )}
+                </div>
+              );
+            })()}
           </div>
         }
 
         {/* Categories Management */}
         {tab === 'categories' &&
         <div>
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <h2 className="text-lg font-display font-semibold text-foreground">Manage Categories</h2>
-            <button
-              onClick={() => {
-                setEditCategory({});
-                setShowCategoryForm(true);
-              }}
-              className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90"
-            >
-              <Plus className="w-4 h-4" /> Add Category
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search categories..."
+                  value={categorySearch}
+                  onChange={(e) => setCategorySearch(e.target.value)}
+                  className="w-full sm:w-64 px-4 py-2 pl-10 pr-10 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                {categorySearch && (
+                  <button
+                    onClick={() => setCategorySearch('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+              <button
+                onClick={() => {
+                  setEditCategory({});
+                  setShowCategoryForm(true);
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 whitespace-nowrap"
+              >
+                <Plus className="w-4 h-4" /> Add Category
+              </button>
+            </div>
           </div>
 
           {/* Category Form Modal */}
@@ -968,55 +1049,68 @@ const Admin = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {categoriesList.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={5}
-                        className="px-6 py-8 text-center text-muted-foreground text-sm"
-                      >
-                        No categories yet. Create your first one!
-                      </td>
-                    </tr>
-                  ) : (
-                    categoriesList.map((cat) => (
-                      <tr
-                        key={cat.id}
-                        className="hover:bg-muted/50 transition-colors"
-                      >
-                        <td className="px-6 py-3 text-sm text-foreground font-medium">
-                          {cat.name}
-                        </td>
-                        <td className="px-6 py-3 text-sm text-foreground">
-                          {cat.name_ar}
-                        </td>
-                        <td className="px-6 py-3 text-sm text-muted-foreground truncate max-w-xs">
-                          {cat.description || '-'}
-                        </td>
-                        <td className="px-6 py-3 text-sm text-foreground">
-                          {cat.order_index}
-                        </td>
-                        <td className="px-6 py-3 text-sm">
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => {
-                                setEditCategory(cat);
-                                setShowCategoryForm(true);
-                              }}
-                              className="flex items-center gap-1 px-3 py-1.5 bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 rounded-lg transition-colors text-xs font-medium"
-                            >
-                              <Pencil className="w-3.5 h-3.5" /> Edit
-                            </button>
-                            <button
-                              onClick={() => deleteCategory(cat.id)}
-                              className="flex items-center gap-1 px-3 py-1.5 bg-destructive/10 text-destructive hover:bg-destructive/20 rounded-lg transition-colors text-xs font-medium"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" /> Delete
-                            </button>
-                          </div>
+                  {(() => {
+                    const filteredCategories = categoriesList.filter((cat) => {
+                      if (!categorySearch.trim()) return true;
+                      const searchTerm = categorySearch.toLowerCase();
+                      return (
+                        cat.name.toLowerCase().includes(searchTerm) ||
+                        cat.name_ar.toLowerCase().includes(searchTerm) ||
+                        (cat.description && cat.description.toLowerCase().includes(searchTerm)) ||
+                        (cat.description_ar && cat.description_ar.toLowerCase().includes(searchTerm))
+                      );
+                    });
+
+                    return filteredCategories.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={5}
+                          className="px-6 py-8 text-center text-muted-foreground text-sm"
+                        >
+                          {categorySearch.trim() ? 'No categories match your search.' : 'No categories yet. Create your first one!'}
                         </td>
                       </tr>
-                    ))
-                  )}
+                    ) : (
+                      filteredCategories.map((cat) => (
+                        <tr
+                          key={cat.id}
+                          className="hover:bg-muted/50 transition-colors"
+                        >
+                          <td className="px-6 py-3 text-sm text-foreground font-medium">
+                            {cat.name}
+                          </td>
+                          <td className="px-6 py-3 text-sm text-foreground">
+                            {cat.name_ar}
+                          </td>
+                          <td className="px-6 py-3 text-sm text-muted-foreground truncate max-w-xs">
+                            {cat.description || '-'}
+                          </td>
+                          <td className="px-6 py-3 text-sm text-foreground">
+                            {cat.order_index}
+                          </td>
+                          <td className="px-6 py-3 text-sm">
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => {
+                                  setEditCategory(cat);
+                                  setShowCategoryForm(true);
+                                }}
+                                className="flex items-center gap-1 px-3 py-1.5 bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 rounded-lg transition-colors text-xs font-medium"
+                              >
+                                <Pencil className="w-3.5 h-3.5" /> Edit
+                              </button>
+                              <button
+                                onClick={() => deleteCategory(cat.id)}
+                                className="flex items-center gap-1 px-3 py-1.5 bg-destructive/10 text-destructive hover:bg-destructive/20 rounded-lg transition-colors text-xs font-medium"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" /> Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    );
+                  })()}
                 </tbody>
               </table>
             </div>
